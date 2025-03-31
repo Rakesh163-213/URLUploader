@@ -22,10 +22,10 @@ from config import (
     API_ID,
     API_HASH,
     BOT_TOKEN,
-    SESSION_STRING,
     MAX_FILE_SIZE
 )
 
+# Bot Client
 bot = Client(
     "uploader_bot", 
     api_id=API_ID,
@@ -35,16 +35,18 @@ bot = Client(
     parse_mode=ParseMode.MARKDOWN
 )
 
+# User Client (File-Based Session)
 user = Client(
-    "user_session",
-    workers=1000,
-    session_string=SESSION_STRING
+    "user_session",  # Creates and stores session in user_session.session
+    api_id=API_ID,  
+    api_hash=API_HASH,  
+    workers=1000
 )
 
 pending_renames = {}
 pending_downloads = {}
 
-URL_REGEX = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+URL_REGEX = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\,]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 @bot.on_message(filters.text & filters.private)
 async def handle_message(client, message: Message):
@@ -170,6 +172,10 @@ async def on_file_decision(client, callback_query):
         await editable_text.delete()
         await callback_query.message.edit_text(f"{str(e)}")
 
+# Run the Clients Asynchronously
+async def main():
+    await user.start()  # Start the user session once
+    bot.run()  # Run the bot
+
 if __name__ == "__main__":
-    user.start()
-    bot.run()
+    asyncio.run(main())  # Ensure proper async execution
