@@ -37,7 +37,16 @@ bot = Client(
 pending_renames = {}
 pending_downloads = {}
 
-URL_REGEX = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+URL_REGEX = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\,]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+
+@bot.on_message(filters.command("start") & filters.private)
+async def start_handler(client, message: Message):
+    await message.reply_text(
+        "**👋 Welcome to the File Uploader Bot!**\n\n"
+        "📎 Just send me a direct **file URL** (like Google Drive, direct links, etc.).\n"
+        "⬇️ I will download it and send it to you here.\n\n"
+        "You can also choose to rename the file before upload!"
+    )
 
 @bot.on_message(filters.text & filters.private)
 async def handle_message(client, message: Message):
@@ -164,5 +173,4 @@ async def on_file_decision(client, callback_query):
         await callback_query.message.edit_text(f"{str(e)}")
 
 if __name__ == "__main__":
-    #user.start()
     bot.run()
